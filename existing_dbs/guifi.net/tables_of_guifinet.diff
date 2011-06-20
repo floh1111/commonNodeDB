@@ -1,0 +1,406 @@
+--- drupal_without_guifi_structure.sql	2011-06-17 19:22:36.000000000 +0200
++++ drupal_guifi_structure.sql	2011-06-17 19:22:36.000000000 +0200
+@@ -3,7 +3,7 @@
+ -- http://www.phpmyadmin.net
+ --
+ -- Host: localhost
+--- Generation Time: Jun 17, 2011 at 06:31 PM
++-- Generation Time: Jun 17, 2011 at 06:37 PM
+ -- Server version: 5.5.13
+ -- PHP Version: 5.3.6
+ 
+@@ -343,6 +343,379 @@
+ -- --------------------------------------------------------
+ 
+ --
++-- Table structure for table `guifi_api_tokens`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_api_tokens` (
++  `uid` mediumint(9) NOT NULL,
++  `token` varchar(1024) NOT NULL DEFAULT '',
++  `created` int(11) NOT NULL,
++  `rand_key` mediumint(9) NOT NULL,
++  PRIMARY KEY (`uid`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_devices`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_devices` (
++  `id` mediumint(9) NOT NULL AUTO_INCREMENT,
++  `nid` mediumint(9) NOT NULL,
++  `nick` varchar(40) NOT NULL,
++  `type` varchar(40) NOT NULL,
++  `notification` varchar(1024) NOT NULL,
++  `mac` varchar(20) NOT NULL DEFAULT '00:00:00:00:00:00',
++  `comment` longtext,
++  `flag` varchar(40) NOT NULL DEFAULT 'Planned',
++  `extra` longtext,
++  `graph_server` mediumint(9) NOT NULL DEFAULT '0',
++  `logserver` varchar(60) NOT NULL,
++  `last_online` int(11) NOT NULL DEFAULT '0',
++  `last_flag` varchar(40) NOT NULL DEFAULT 'N/A',
++  `ly_availability` decimal(11,2) DEFAULT NULL,
++  `last_stats` int(11) NOT NULL DEFAULT '0',
++  `latency_avg` smallint(6) NOT NULL DEFAULT '0',
++  `latency_max` smallint(6) NOT NULL DEFAULT '0',
++  `user_created` int(11) NOT NULL DEFAULT '0',
++  `user_changed` int(11) NOT NULL DEFAULT '0',
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) NOT NULL DEFAULT '0',
++  PRIMARY KEY (`id`),
++  UNIQUE KEY `nick` (`nick`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_dns_domains`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_dns_domains` (
++  `id` mediumint(9) NOT NULL,
++  `sid` mediumint(9) NOT NULL,
++  `name` varchar(40) NOT NULL DEFAULT '',
++  `type` varchar(16) NOT NULL DEFAULT '',
++  `public` varchar(5) NOT NULL DEFAULT 'yes',
++  `ipv4` varchar(16) NOT NULL DEFAULT '',
++  `defipv4` varchar(16) NOT NULL DEFAULT '',
++  `defipv6` varchar(128) NOT NULL DEFAULT '',
++  `mname` varchar(32) NOT NULL DEFAULT '',
++  `scope` varchar(16) NOT NULL DEFAULT '',
++  `management` varchar(16) NOT NULL DEFAULT '',
++  `allow` varchar(24) NOT NULL DEFAULT '',
++  `externalmx` varchar(128) NOT NULL DEFAULT '',
++  `externalns` varchar(128) NOT NULL DEFAULT '',
++  `notification` varchar(1024) NOT NULL DEFAULT '',
++  `comment` longtext,
++  `user_created` int(11) NOT NULL,
++  `user_changed` int(11) NOT NULL,
++  `timestamp_created` int(11) NOT NULL,
++  `timestamp_changed` int(11) NOT NULL,
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_dns_hosts`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_dns_hosts` (
++  `id` mediumint(9) NOT NULL,
++  `counter` tinyint(4) NOT NULL,
++  `host` varchar(128) NOT NULL DEFAULT '',
++  `ipv4` varchar(16) NOT NULL DEFAULT '',
++  `ipv6` varchar(128) NOT NULL DEFAULT '',
++  `aliases` varchar(1024) NOT NULL DEFAULT '',
++  `options` varchar(1024) NOT NULL DEFAULT '',
++  `user_created` int(11) NOT NULL,
++  `user_changed` int(11) NOT NULL,
++  `timestamp_created` int(11) NOT NULL,
++  `timestamp_changed` int(11) NOT NULL,
++  PRIMARY KEY (`id`,`counter`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_interfaces`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_interfaces` (
++  `id` mediumint(9) NOT NULL AUTO_INCREMENT,
++  `device_id` mediumint(9) NOT NULL,
++  `radiodev_counter` tinyint(4) DEFAULT NULL,
++  `etherdev_counter` tinyint(4) DEFAULT NULL,
++  `interface_type` varchar(40) NOT NULL,
++  `mac` varchar(20) NOT NULL DEFAULT '00:00:00:00:00:00',
++  PRIMARY KEY (`device_id`,`id`),
++  KEY `id` (`id`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_ipv4`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_ipv4` (
++  `id` tinyint(4) NOT NULL,
++  `interface_id` mediumint(9) NOT NULL DEFAULT '0',
++  `ipv4` varchar(16) DEFAULT NULL,
++  `netmask` varchar(16) NOT NULL DEFAULT '255.255.255.0',
++  `ipv4_type` tinyint(4) NOT NULL DEFAULT '0',
++  `zone_id` mediumint(9) NOT NULL DEFAULT '0',
++  PRIMARY KEY (`interface_id`,`id`),
++  UNIQUE KEY `ipv4` (`ipv4`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_links`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_links` (
++  `id` mediumint(9) NOT NULL,
++  `nid` mediumint(9) NOT NULL,
++  `device_id` mediumint(9) NOT NULL,
++  `interface_id` mediumint(9) NOT NULL,
++  `ipv4_id` tinyint(4) NOT NULL,
++  `link_type` varchar(40) NOT NULL,
++  `routing` varchar(40) DEFAULT NULL,
++  `flag` varchar(40) NOT NULL DEFAULT 'Planned',
++  PRIMARY KEY (`device_id`,`id`),
++  KEY `id` (`id`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_location`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_location` (
++  `id` mediumint(9) NOT NULL AUTO_INCREMENT,
++  `nick` varchar(40) NOT NULL DEFAULT '',
++  `zone_id` mediumint(9) DEFAULT NULL,
++  `zone_description` varchar(255) DEFAULT NULL,
++  `lat` decimal(10,6) DEFAULT NULL,
++  `lon` decimal(10,6) DEFAULT NULL,
++  `elevation` tinyint(4) DEFAULT NULL,
++  `notification` varchar(1024) NOT NULL,
++  `status_flag` varchar(40) NOT NULL DEFAULT 'Planned',
++  `stable` varchar(25) NOT NULL DEFAULT 'Yes',
++  `graph_server` mediumint(9) NOT NULL DEFAULT '0',
++  `user_created` mediumint(9) NOT NULL DEFAULT '0',
++  `user_changed` mediumint(9) DEFAULT NULL,
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) DEFAULT NULL,
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_manufacturer`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_manufacturer` (
++  `fid` smallint(6) NOT NULL,
++  `name` varchar(40) NOT NULL DEFAULT '',
++  `url` varchar(40) DEFAULT NULL,
++  `notification` varchar(1024) NOT NULL DEFAULT '',
++  `user_created` mediumint(9) NOT NULL DEFAULT '0',
++  `user_changed` mediumint(9) NOT NULL DEFAULT '0',
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) NOT NULL DEFAULT '0',
++  PRIMARY KEY (`fid`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_model`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_model` (
++  `mid` smallint(6) NOT NULL,
++  `fid` smallint(6) NOT NULL DEFAULT '0',
++  `model` varchar(40) NOT NULL DEFAULT '',
++  `type` varchar(10) DEFAULT NULL,
++  `radiodev_max` tinyint(4) NOT NULL DEFAULT '1',
++  `etherdev_max` tinyint(4) NOT NULL DEFAULT '1',
++  `AP` varchar(5) DEFAULT NULL,
++  `virtualAP` varchar(5) NOT NULL DEFAULT 'No',
++  `client` varchar(5) DEFAULT NULL,
++  `interfaces` varchar(240) DEFAULT NULL,
++  `url` varchar(240) DEFAULT NULL,
++  `comments` varchar(240) DEFAULT NULL,
++  `supported` varchar(25) NOT NULL DEFAULT 'Yes',
++  `notification` varchar(1024) NOT NULL DEFAULT '',
++  `user_created` mediumint(9) NOT NULL DEFAULT '0',
++  `user_changed` mediumint(9) NOT NULL DEFAULT '0',
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) NOT NULL DEFAULT '0',
++  PRIMARY KEY (`mid`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_networks`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_networks` (
++  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
++  `base` varchar(255) NOT NULL DEFAULT '',
++  `mask` varchar(255) NOT NULL DEFAULT '255.255.255.0',
++  `zone` mediumint(8) unsigned NOT NULL,
++  `network_type` varchar(10) NOT NULL DEFAULT 'public',
++  `user_created` mediumint(9) NOT NULL DEFAULT '0',
++  `user_changed` mediumint(9) NOT NULL DEFAULT '0',
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) NOT NULL DEFAULT '0',
++  PRIMARY KEY (`id`),
++  UNIQUE KEY `networks` (`base`(16),`mask`(16)),
++  KEY `net_zone` (`zone`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_notify`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_notify` (
++  `id` smallint(5) unsigned NOT NULL,
++  `timestamp` int(10) unsigned NOT NULL,
++  `who_id` mediumint(8) unsigned NOT NULL,
++  `who_name` varchar(255) NOT NULL,
++  `to_array` varchar(1024) NOT NULL,
++  `subject` varchar(255) NOT NULL,
++  `body` longtext NOT NULL,
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_radios`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_radios` (
++  `id` mediumint(9) NOT NULL AUTO_INCREMENT,
++  `radiodev_counter` tinyint(4) NOT NULL DEFAULT '0',
++  `etherdev_counter` tinyint(4) DEFAULT NULL,
++  `nid` int(11) NOT NULL,
++  `model_id` smallint(6) NOT NULL,
++  `ssid` varchar(128) NOT NULL DEFAULT '',
++  `mode` varchar(40) NOT NULL,
++  `protocol` varchar(40) NOT NULL DEFAULT '802.11bg',
++  `channel` smallint(6) DEFAULT NULL,
++  `antenna_angle` smallint(6) DEFAULT '0',
++  `antenna_gain` tinyint(4) DEFAULT NULL,
++  `antenna_azimuth` smallint(6) DEFAULT '360',
++  `antenna_mode` varchar(5) NOT NULL,
++  `ly_mb_in` decimal(10,6) DEFAULT NULL,
++  `ly_mb_out` decimal(10,6) DEFAULT NULL,
++  `clients_accepted` varchar(5) NOT NULL DEFAULT 'Yes',
++  PRIMARY KEY (`id`,`radiodev_counter`),
++  KEY `nid` (`nid`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_services`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_services` (
++  `id` mediumint(9) NOT NULL AUTO_INCREMENT,
++  `nick` varchar(40) NOT NULL DEFAULT '',
++  `service_type` varchar(40) NOT NULL DEFAULT '',
++  `zone_id` mediumint(9) DEFAULT NULL,
++  `device_id` mediumint(9) DEFAULT NULL,
++  `notification` varchar(1024) DEFAULT NULL,
++  `status_flag` varchar(40) NOT NULL DEFAULT 'Planned',
++  `extra` longtext,
++  `user_created` int(11) NOT NULL DEFAULT '0',
++  `user_changed` int(11) DEFAULT NULL,
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) DEFAULT NULL,
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_users`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_users` (
++  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
++  `nid` mediumint(8) unsigned NOT NULL DEFAULT '0',
++  `services` longtext NOT NULL,
++  `firstname` varchar(60) NOT NULL DEFAULT '',
++  `lastname` varchar(60) NOT NULL DEFAULT '',
++  `username` varchar(40) NOT NULL DEFAULT '',
++  `password` varchar(128) NOT NULL DEFAULT '',
++  `notification` varchar(1024) DEFAULT NULL,
++  `extra` longtext,
++  `user_created` mediumint(9) NOT NULL DEFAULT '0',
++  `user_changed` mediumint(9) NOT NULL DEFAULT '0',
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) NOT NULL DEFAULT '0',
++  `status` varchar(25) NOT NULL DEFAULT 'new',
++  `content_filters` longtext,
++  PRIMARY KEY (`id`),
++  UNIQUE KEY `username` (`username`)
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
++-- Table structure for table `guifi_zone`
++--
++
++CREATE TABLE IF NOT EXISTS `guifi_zone` (
++  `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
++  `title` varchar(255) NOT NULL DEFAULT '',
++  `nick` varchar(10) DEFAULT NULL,
++  `body` longtext NOT NULL,
++  `master` mediumint(8) unsigned NOT NULL,
++  `zone_mode` varchar(25) NOT NULL DEFAULT 'infrastructure',
++  `graph_server` varchar(40) DEFAULT NULL,
++  `proxy_id` mediumint(9) NOT NULL DEFAULT '0',
++  `voip_id` mediumint(9) NOT NULL DEFAULT '0',
++  `time_zone` varchar(15) NOT NULL,
++  `dns_servers` varchar(255) DEFAULT NULL,
++  `ntp_servers` varchar(255) DEFAULT NULL,
++  `homepage` varchar(255) DEFAULT NULL,
++  `notification` varchar(1024) NOT NULL,
++  `ospf_zone` varchar(255) DEFAULT NULL,
++  `minx` decimal(10,6) DEFAULT NULL,
++  `miny` decimal(10,6) DEFAULT NULL,
++  `maxx` decimal(10,6) DEFAULT NULL,
++  `maxy` decimal(10,6) DEFAULT NULL,
++  `local` varchar(5) NOT NULL DEFAULT 'Yes',
++  `nodexchange_url` varchar(255) DEFAULT NULL,
++  `refresh` int(11) DEFAULT NULL,
++  `remote_server_id` mediumint(9) DEFAULT NULL,
++  `weight` tinyint(4) NOT NULL DEFAULT '0',
++  `user_created` mediumint(9) NOT NULL DEFAULT '0',
++  `user_changed` mediumint(9) NOT NULL DEFAULT '0',
++  `timestamp_created` int(11) NOT NULL DEFAULT '0',
++  `timestamp_changed` int(11) NOT NULL DEFAULT '0',
++  PRIMARY KEY (`id`),
++  KEY `name` (`title`(10))
++) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
++
++-- --------------------------------------------------------
++
++--
+ -- Table structure for table `history`
+ --
+ 
+@@ -404,7 +777,7 @@
+   KEY `menu_plid_expand_child` (`menu_name`,`plid`,`expanded`,`has_children`),
+   KEY `menu_parents` (`menu_name`,`p1`,`p2`,`p3`,`p4`,`p5`,`p6`,`p7`,`p8`,`p9`),
+   KEY `router_path` (`router_path`(128))
+-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=111 ;
++) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=206 ;
+ 
+ -- --------------------------------------------------------
+ 
+@@ -853,4 +1226,4 @@
+   `timestamp` int(11) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`wid`),
+   KEY `type` (`type`)
+-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14 ;
++) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=309 ;
